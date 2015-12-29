@@ -8,52 +8,87 @@
 #python_version  :2.7.3
 #==============================================================================
 
+import json
 import sys
 import os
 import csv
 import urllib2
-from tswa.TimeSeries import TimeSeries
-from tswa.DataPoint import DataPoint
+import datetime
+from random import randint
+from stktrkr.Stock import Stock
+from stktrkr.DataPoint import DataPoint
 
-class TimeSeriesWaveAnalyzer:
-	def __init__(self, startDate, endDate, stockName):
+class StockTracker:
+	def __init__(self):
 		# Initialize the various SP lists
 		self.initSP500()
+		self.stockDict = []
 	
-		if not self.validateName(stockName):
-			print '{0} is an invalid stock!'.format(stockName)
-			exit(1)
-
-		csvList = self.getCSV(stockName, startDate, endDate)
-		ts = TimeSeries(stockName)
-		ts.addDataPoints(csvList)
-		ts.sort()
+	def readFile(self, filename):
+		file = open(filename, 'r')
+		stringValue = ''
+		for line in file:
+			stringValue = stringValue + line.rstrip() + ' '
+		return stringValue.rstrip()
+	
+	
+	def process(self, jsonString):
+		jsonDict = json.loads(jsonString)
+		stocks = jsonDict['stocks']
+		sellDate = jsonDict['sell_date']
 		
-		ts.buyShares(150)
+		for stock in stocks:
+			name = stock['ticker'].upper()
+			buyDate = stock['buy_date']
+			if name == 'SP500-RANDOM':
+				name = self.getRandomSP500()		
+		
+			buyLimit = stock['buy_limit']
+
+			try:
+				unitLimit = stock['unit_limit']		
+			except KeyError:
+				unitLimit = -1
+				
+			try:
+				repeat = stock['repeat']		
+			except KeyError:
+				repeat = 'never'
+						
+			# Read the raw stock data
+			csvList = self.getCSV(name, buyDate, sellDate)
+			
+			# Initialise the Stock and add data
+			stock = Stock(name)
+			stock.addDataPoints(csvList)
+			stock.sort()
+			stock.buy(buyDate, buyLimit, unitLimit, repeat)
+			stock.printDetails()
 
 	def getCSV(self, name, startDate, endDate):
-		startYear, startMonth, startDay = self.getDate(startDate)
-		endYear, endMonth, endDay = self.getDate(endDate)
+		startYear, startMonth, startDay = self.getDate(str(startDate))
+		endYear, endMonth, endDay = self.getDate(str(endDate))
 		url = 'http://real-chart.finance.yahoo.com/table.csv?s='+name
 		url = url + '&a='+startMonth+'&b='+startDay+'&c='+startYear
 		url = url + '&d='+endMonth+'&e='+endDay+'&f='+endYear+'&g=d&ignore=.csv'
 		response = urllib2.urlopen(url)
 		cr = csv.reader(response)
 		csvList = list(cr)
+		print csvList[1]
+		print csvList[-1]
 		return csvList
-
-	def validateName(self, name):		
-		if name.upper() in self.sp500:
-			return True
-		else:
-			return False
 	
-	def getDate(self, dateString):
+	def getDate(self, dateValue):
+		dateString = str(dateValue)
 		year = dateString[0:4]
 		month = str(int(dateString[4:6])-1)
 		day = str(int(dateString[6:]))
 		return year, month, day
-			
+	
+	def getRandomSP500(self):
+		index = randint(0,len(self.sp500))
+		return self.sp500[index]	
+		
 	def initSP500(self):
 		self.sp500 =['ABT', 'ABBV', 'ACN', 'ACE', 'ATVI', 'ADBE', \
 		'ADT', 'AAP', 'AES', 'AET', 'AFL', 'AMG', 'A', 'GAS', 'APD', \

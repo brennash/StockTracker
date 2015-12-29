@@ -28,12 +28,12 @@ performance of this portfolio on a specified day, also highlighted in the
 JSON input. 
 
 ```
-{
-	name:'test1',
-	startDate:20150101,
-	endDate:20151221,
-	stocks:[
-		{ticker:'AMZN',buyDate:20150101,buyLimit:1000.00},
-		{ticker:'TSLA',buyDate:20150201,unitLimit:10,buyLimit:1500.00}
-	]
+{"name":"test1",
+    "sell_date":20151221,
+    "stocks":[
+        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
+        {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00},
+        {"ticker":"TSLA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00}
+    ]
 }
+```

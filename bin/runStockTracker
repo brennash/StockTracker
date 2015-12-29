@@ -14,12 +14,14 @@ def main(argv):
 		print 'Error - you need to provide a JSON file with stock inputs'
 		sys.exit(1)
 		
-	if not os.path.exists(filename[1]):
+	if not os.path.exists(filename[0]):
 		parser.print_help()
 		print 'Error - you need to provide an existing JSON file with stock inputs'
 		sys.exit(1)
 
-	analyzer = TimeSeriesWaveAnalyzer(filename[0].rstrip())
- 
+	tracker = StockTracker()
+	input = tracker.readFile(filename[0].rstrip())
+	tracker.process(input) 
+
 if __name__ == "__main__":
     sys.exit(main(sys.argv))
