@@ -19,3 +19,21 @@ UrlLib2 to get the raw data in CSV format.
 * sudo apt-get update
 * sudo apt-get install git python-pip
 * sudo pip install urllib2 (where appropriate)
+
+## Usage
+The StockTracker library can be kicked off using the script in the bin
+directory. Basically library requires a JSON file as input listing when 
+and how many shares are to be bought on a certain day. The output is the 
+performance of this portfolio on a specified day, also highlighted in the
+JSON input. 
+
+```
+{
+	name:'test1',
+	startDate:20150101,
+	endDate:20151221,
+	stocks:[
+		{ticker:'AMZN',buyDate:20150101,buyLimit:1000.00},
+		{ticker:'TSLA',buyDate:20150201,unitLimit:10,buyLimit:1500.00}
+	]
+}
