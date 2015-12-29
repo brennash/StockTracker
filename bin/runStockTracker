@@ -1,0 +1,25 @@
+#!/usr/bin/env python
+import sys
+import os
+sys.path.append(os.path.abspath('..'))
+from optparse import OptionParser
+from stktrkr.StockTracker import StockTracker
+
+def main(argv):
+	parser = OptionParser(usage="Usage: runStockTracker <filename>")
+	(options, filename) = parser.parse_args()
+
+	if len(filename) != 1:
+		parser.print_help()
+		print 'Error - you need to provide a JSON file with stock inputs'
+		sys.exit(1)
+		
+	if not os.path.exists(filename[1]):
+		parser.print_help()
+		print 'Error - you need to provide an existing JSON file with stock inputs'
+		sys.exit(1)
+
+	analyzer = TimeSeriesWaveAnalyzer(filename[0].rstrip())
+ 
+if __name__ == "__main__":
+    sys.exit(main(sys.argv))
