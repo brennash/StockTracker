@@ -58,6 +58,10 @@ class Stock:
 		# starting data for the stock (i.e., weekends etc.)
 		if startDate + datetime.timedelta(days = 4) > buyDate:
 			openDate, openPrice = self.getOpeningPrice()
+			if unitLimit == -1:
+				self.buyShares(buyLimit)					
+			elif unitLimit > 0 and (unitLimit*openPrice) < buyLimit:
+				self.buyUnitShares(unitLimit, buyLimit)
 		else:
 			print self.stockName,"the buyDate (",buyDate,") is removed from the startDate (",startDate,")"
 			exit(1)
@@ -65,7 +69,7 @@ class Stock:
 	def buyShares(self, upperLimit):
 		startDate, startPrice = self.getOpeningPrice()
 		total = int(upperLimit)/int(startPrice)
-		return total, (total*startPrice)
+		
 		
 	def buyUnitShares(self, units, upperLimit):
 		startDate, startPrice = self.getOpeningPrice()

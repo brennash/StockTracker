@@ -32,8 +32,10 @@ JSON input.
     "sell_date":20151221,
     "stocks":[
         {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
+        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
         {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00},
-        {"ticker":"TSLA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00}
+        {"ticker":"TSLA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00},
+        {"ticker":"NVDA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00}
     ]
 }
 ```
