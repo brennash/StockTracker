@@ -210,3 +210,12 @@ class Stock:
 
 		print 'Closing Total:{0:.2f}'.format(closingTotal)
 		print 'Profit:{0:.2f}, Percentage:{1:.1f} %'.format(profit, percentage)
+		
+		if len(self.purchaseDateList) > 1:
+			print '\nStock,Date,Units,Amount'
+			for index, date in enumerate(self.purchaseDateList):
+				dateStr = date.strftime('%d/%m/%Y')
+				amount = self.purchaseTotalList[index]
+				units = self.purchaseUnitsList[index]
+				print '{0},{1},{2},{3:.2f}'.format(self.stockName,dateStr,units,amount)
+			print '{0},{1},{2},{3:.2f}'.format('Total',closingDateStr,self.purchaseUnits,self.purchaseTotal) 

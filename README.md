@@ -54,7 +54,9 @@ The output of the application is as follows, giving an example of
 purchased Amazon (AMZN) stock, purchased monthly between the 2nd Jan
 and the 18th Dec 2015. This is one of the impressive S&P500 stocks in 
 that for an investment of 9650.15 you end up with a profit of 4960.94 
-or (51%) over 12 months. Nice!!
+or (51%) over 12 months. Nice!! The end of the output shows the repeat
+stock purchases according to whatever schedule you select, here they're
+set to 'monthly' which is every four weeks. 
 
 ```
 AMZN
@@ -63,5 +65,21 @@ Opening Price per Unit:308.52, Opening Date:02/01/2015
 Closing Price per Unit:664.14, Closing Date:18/12/2015
 Closing Total:14611.08
 Profit:4960.93, Percentage:51.4 %
+
+Stock,Date,Units,Amount
+AMZN,02/01/2015,3,925.56
+AMZN,30/01/2015,2,709.06
+AMZN,27/02/2015,2,760.32
+AMZN,27/03/2015,2,741.12
+AMZN,24/04/2015,2,890.20
+AMZN,22/05/2015,2,855.26
+AMZN,19/06/2015,2,869.84
+AMZN,17/07/2015,2,966.02
+AMZN,14/08/2015,1,531.52
+AMZN,11/09/2015,1,529.44
+AMZN,09/10/2015,1,539.80
+AMZN,06/11/2015,1,659.37
+AMZN,04/12/2015,1,672.64
+Total,18/12/2015,22,9650.15
 ```
 
