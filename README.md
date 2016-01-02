@@ -2,13 +2,14 @@
 
 This repository contains the basic Python code to implement an 
 basic stock tracker library on a number of daily stock market adjusted 
-closing values. 
+closing values. Note that this is a tracker only, the predictive part
+will be updated later. 
 
-The code is written in Python on an Ubuntu 14.04 LTS environment. 
-No ports are being considered at this time for either Windows or 
-MacOS for any specific parts of the repository. Frankly if you're
-too dumb to be still using Windows I don't think this repo is 
-for you at all. 
+The code is written in Python 2.7.3 on a Mac OS X and tested under
+Ubuntu 14.04 LTS. No ports are being considered at this time for Windows
+Frankly if you're too dumb to be still using Windows I don't think this 
+repo is for you at all. If you're stuck using Windows in work, I'm sure
+you'll figure out a way around the issue.
 
 # Development notes
 Was going to use the Python library for yahoo-finance, however, the 
@@ -40,6 +41,10 @@ JSON input.
 }
 ```
 
+Note the 'SP500-RANDOM' ticker name in the above JSON. This allows the 
+application to randomly select an S&P500 stock and see how it performs 
+over the given time period. 
+
 ## Running the application
 To run the application you need a valid JSON file describing the stocks to be checked, 
 as well as Python 2.7.3 or greater installed on your system. I don't think there's many 
@@ -47,7 +52,14 @@ required libraries, but anything extra you need should be available on a 'pip in
 
 To run the application type, 
 
+```
 python runStockTracker [-v|--verbose] <filname.json>
+```
+
+The ```verbose``` option is mostly there for debugging, there's no need to use 
+it when you're running as per normal, since most of the output will be duplicated. 
+In case of problems, there's a test script which can be run from the main directory 
+either, again, this should be largely unnecessary. 
 
 ## The Output
 The output of the application is as follows, giving an example of 
