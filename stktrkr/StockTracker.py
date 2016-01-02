@@ -19,16 +19,25 @@ from stktrkr.Stock import Stock
 from stktrkr.DataPoint import DataPoint
 
 class StockTracker:
-	def __init__(self):
+	def __init__(self, verbose=False):
 		# Initialize the various SP lists
 		self.initSP500()
 		self.stockDict = []
+		self.verbose = verbose
 	
 	def readFile(self, filename):
+		if self.verbose:
+			print 'Opening file',filename
+			
 		file = open(filename, 'r')
 		stringValue = ''
+		length = 0
 		for line in file:
 			stringValue = stringValue + line.rstrip() + ' '
+			length += 1
+		
+		if self.verbose:
+			print 'Read',length,'lines from file...'
 		return stringValue.rstrip()
 	
 	
@@ -42,6 +51,10 @@ class StockTracker:
 			buyDate = stock['buy_date']
 			if name == 'SP500-RANDOM':
 				name = self.getRandomSP500()		
+
+			# Printing verbose output stock name		
+			if self.verbose:
+				print 'Processing',name		
 		
 			buyLimit = stock['buy_limit']
 
@@ -54,14 +67,22 @@ class StockTracker:
 				repeat = stock['repeat']		
 			except KeyError:
 				repeat = 'never'
-						
+			
+			# Print the details for each purchase plan
+			if self.verbose:
+				print 'BuyLimit:{0},UnitLimit:{1},Repeat:{2}'.format(buyLimit,unitLimit,repeat)
+			
 			# Read the raw stock data
 			csvList = self.getCSV(name, buyDate, sellDate)
 			
 			# Initialise the Stock and add data
-			stock = Stock(name)
+			stock = Stock(name, self.verbose)
 			stock.addDataPoints(csvList)
+			
+			# Sort them into date order oldest to newest
 			stock.sort()
+			
+			# Buy the stock and print the details
 			stock.buy(buyDate, buyLimit, unitLimit, repeat)
 			stock.printDetails()
 
@@ -74,8 +95,6 @@ class StockTracker:
 		response = urllib2.urlopen(url)
 		cr = csv.reader(response)
 		csvList = list(cr)
-		print csvList[1]
-		print csvList[-1]
 		return csvList
 	
 	def getDate(self, dateValue):
