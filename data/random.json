@@ -1,0 +1,6 @@
+{"name":"test1",
+    "sell_date":20151220,
+    "stocks":[
+        {"ticker":"SP500-RANDOM","buy_date":20140101,"buy_limit":400.00,"repeat":"monthly"}
+    ]
+}
