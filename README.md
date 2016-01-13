@@ -32,8 +32,8 @@ JSON input.
 {"name":"test1",
     "sell_date":20151221,
     "stocks":[
-        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
+        {"ticker":"RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
+        {"ticker":"RANDOM-REPEAT","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
         {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00},
         {"ticker":"TSLA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00},
         {"ticker":"NVDA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00}
@@ -41,9 +41,10 @@ JSON input.
 }
 ```
 
-Note the 'SP500-RANDOM' ticker name in the above JSON. This allows the 
-application to randomly select an S&P500 stock and see how it performs 
-over the given time period. 
+Note the 'RANDOM-REPEAT' ticker name in the above JSON. This allows the 
+application to randomly select an S&P500 stock at each purchase interval 
+and see how it performs over the given time period. The assumption with 
+RANDOM-REPEAT stocks is that the 'repeat' field is non-null.
 
 ## Running the application
 To run the application you need a valid JSON file describing the stocks to be checked, 

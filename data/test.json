@@ -2,7 +2,7 @@
     "sell_date":20151220,
     "stocks":[
         {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
+        {"ticker":"SP500-RANDOM-REPEAT","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
         {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
         {"ticker":"TSLA","buy_date":20150101,"buy_limit":400.00,"repeat":"monthly"},
         {"ticker":"V","buy_date":20150101,"unit_limit":10,"buy_limit":1500.00}
