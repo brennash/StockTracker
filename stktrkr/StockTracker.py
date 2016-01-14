@@ -14,6 +14,7 @@ import os
 import csv
 import urllib2
 import datetime
+import re
 from random import randint
 from stktrkr.Stock import Stock
 from stktrkr.DataPoint import DataPoint
@@ -26,22 +27,47 @@ class StockTracker:
 		self.verbose = verbose
 	
 	def readFile(self, filename):
+		""" Read in the input JSON string specifying the funds and 
+			stocks which are to be purchased. The function removes
+			any comments an returns a list of strings, each element
+			being a JSON object. 
+		"""
 		if self.verbose:
 			print 'Opening file',filename
 			
 		file = open(filename, 'r')
-		stringValue = ''
-		length = 0
+		jsonStringList = []
+		
+		num = 0
 		for line in file:
-			stringValue = stringValue + line.rstrip() + ' '
-			length += 1
+			if not re.match('^--', line):
+				jsonStringList.append(line.rstrip())
+				numJSON += 1
 		
 		if self.verbose:
-			print 'Read',length,'lines from file...'
-		return stringValue.rstrip()
+			print 'Read',num,'JSON entities from file...'
+		return jsonStringList
 	
 	
-	def process(self, jsonString):
+	def process(self, jsonStringList):
+		""" This function takes as input the list of json
+			strings, processing each in turn (as well as 
+			doing some basic validation on each).
+		"""		
+		for jsonString in jsonStringList:
+			try:
+				jsonDict = json.loads(jsonString)
+				if self.validateJSON(jsonDict):
+				
+				else:
+					print 'ERROR in JSON...'
+					print jsonString
+			except ValueError:
+				print 'Error decoding JSON...'
+				print jsonString
+	
+	
+	
 		jsonDict = json.loads(jsonString)
 		stocks = jsonDict['stocks']
 		sellDate = jsonDict['sell_date']
