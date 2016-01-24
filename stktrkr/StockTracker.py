@@ -11,8 +11,6 @@
 import json
 import sys
 import os
-import csv
-import urllib2
 import datetime
 import re
 from random import randint
@@ -22,61 +20,91 @@ from stktrkr.DataPoint import DataPoint
 class StockTracker:
 	def __init__(self, verbose=False):
 		# Initialize the various SP lists
-		self.initSP500()
-		self.stockDict = []
+		self.stockList = []
 		self.verbose = verbose
 	
 	def readFile(self, filename):
-		""" Read in the input JSON string specifying the funds and 
-			stocks which are to be purchased. The function removes
-			any comments an returns a list of strings, each element
-			being a JSON object. 
+		""" Read in the input JSON string specifying the fund 
+			to be generated. Each input file must containing only
+			one valid JSON string. 
 		"""
 		if self.verbose:
 			print 'Opening file',filename
 			
 		file = open(filename, 'r')
-		jsonStringList = []
+		jsonString = ''
 		
 		num = 0
 		for line in file:
-			if not re.match('^--', line):
-				jsonStringList.append(line.rstrip())
-				numJSON += 1
+			jsonString = jsonString + ' ' + line.rstrip()
 		
-		if self.verbose:
-			print 'Read',num,'JSON entities from file...'
-		return jsonStringList
+		return jsonString
 	
 	
-	def process(self, jsonStringList):
-		""" This function takes as input the list of json
-			strings, processing each in turn (as well as 
-			doing some basic validation on each).
+	def process(self, jsonString):
+		""" This function takes as input the a single file 
+			containing one valid JSON string, spread over 
+			one or more lines. 
 		"""		
-		for jsonString in jsonStringList:
-			try:
-				jsonDict = json.loads(jsonString)
-				if self.validateJSON(jsonDict):
-				
-				else:
-					print 'ERROR in JSON...'
-					print jsonString
-			except ValueError:
-				print 'Error decoding JSON...'
-				print jsonString
-	
-	
-	
-		jsonDict = json.loads(jsonString)
-		stocks = jsonDict['stocks']
-		sellDate = jsonDict['sell_date']
 		
+		# Load the JSON string for the fund
+		try:
+			jsonDict = json.loads(jsonString)
+		except ValueError:
+			print 'ERROR - Invalid JSON...'
+			print jsonString
+			exit(1)
+	
+		# Parse the JSON data
+		jsonDict = json.loads(jsonString)
+		name = jsonDict['name']
+		sellDate = jsonDict['sell_date']
+		totalBuyLimit = jsonDict['total_buy_limit']
+		stocks = jsonDict['stocks']
+
+		# Output the name of the fund
+		if self.verbose:
+			print 'Processing {0}...'.format(name)
+		
+		for stock in stocks:
+			ticker = stock['ticker'].upper()
+			
+			if ticker == 'RANDOM':
+				ticker = self.getRandomTicker()	
+			
+			buyDate = stock['buy_date']
+			buyLimit = stock['buy_limit']
+			
+			# Get the optional parameters, unit limit
+			try:
+				unitLimit = stock['unit_limit']		
+			except KeyError:
+				unitLimit = -1
+			
+			# And the optional parameter, repeat interval
+			try:
+				repeat = stock['repeat']		
+			except KeyError:
+				repeat = 'never'
+			
+			# Output the stock details if verbose is enabled
+			if self.verbose:
+				print '{0}, BuyDate:{1}, BuyLimit:{2}, UnitLimit{3}, Repeat:{4}'.format(ticker, \
+						buyDate, buyLimit, unitLimit, repeat)
+						
+			# Initialize the stock and save it to list
+			stock = Stock(ticker, buyDate, sellDate, buyLimit, unitLimit, repeat, self.verbose)
+			self.stockList.append(stock)
+			
+		# Now figure out your winnings
+		for stock in self.stockList:
+			total = stock.printDetails()
+	
+	def old_process(self, jsonString):
 		for stock in stocks:
 			name = stock['ticker'].upper()
 			buyDate = stock['buy_date']
-			if name == 'SP500-RANDOM':
-				name = self.getRandomSP500()		
+	
 
 			# Printing verbose output stock name		
 			if self.verbose:
@@ -84,15 +112,7 @@ class StockTracker:
 		
 			buyLimit = stock['buy_limit']
 
-			try:
-				unitLimit = stock['unit_limit']		
-			except KeyError:
-				unitLimit = -1
-				
-			try:
-				repeat = stock['repeat']		
-			except KeyError:
-				repeat = 'never'
+
 			
 			# Print the details for each purchase plan
 			if self.verbose:
@@ -109,33 +129,12 @@ class StockTracker:
 			stock.sort()
 			
 			# Buy the stock and print the details
-			stock.buy(buyDate, buyLimit, unitLimit, repeat)
+			stock.buy
 			stock.printDetails()
 
-	def getCSV(self, name, startDate, endDate):
-		startYear, startMonth, startDay = self.getDate(str(startDate))
-		endYear, endMonth, endDay = self.getDate(str(endDate))
-		url = 'http://real-chart.finance.yahoo.com/table.csv?s='+name
-		url = url + '&a='+startMonth+'&b='+startDay+'&c='+startYear
-		url = url + '&d='+endMonth+'&e='+endDay+'&f='+endYear+'&g=d&ignore=.csv'
-		response = urllib2.urlopen(url)
-		cr = csv.reader(response)
-		csvList = list(cr)
-		return csvList
-	
-	def getDate(self, dateValue):
-		dateString = str(dateValue)
-		year = dateString[0:4]
-		month = str(int(dateString[4:6])-1)
-		day = str(int(dateString[6:]))
-		return year, month, day
-	
-	def getRandomSP500(self):
-		index = randint(0,len(self.sp500))
-		return self.sp500[index]	
 		
-	def initSP500(self):
-		self.sp500 =['ABT', 'ABBV', 'ACN', 'ACE', 'ATVI', 'ADBE', \
+	def getRandomTicker(self):
+		sp500 =['ABT', 'ABBV', 'ACN', 'ACE', 'ATVI', 'ADBE', \
 		'ADT', 'AAP', 'AES', 'AET', 'AFL', 'AMG', 'A', 'GAS', 'APD', \
 		'ARG', 'AKAM', 'AA', 'AGN', 'ALXN', 'ALLE', 'ADS', 'ALL', \
 		'GOOGL', 'GOOG', 'ALTR', 'MO', 'AMZN', 'AEE', 'AAL', 'AEP' \
@@ -191,4 +190,5 @@ class StockTracker:
 		'DIS', 'WM', 'WAT', 'ANTM', 'WFC', 'HCN', 'WDC', 'WU', 'WY', 'WHR', \
 		'WFM', 'WMB', 'WEC', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', \
 		'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS']	
-	
+		index = randint(0,len(sp500))
+		return sp500[index]	

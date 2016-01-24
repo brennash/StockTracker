@@ -1,33 +1,44 @@
 import re
 import csv
+import urllib2
 import datetime
 from dateutil.relativedelta import relativedelta
 from stktrkr.DataPoint import DataPoint
 
 class Stock:
-	def __init__(self, stockName, verbose=False):
+	def __init__(self, ticker, buyDate, sellDate, buyLimit, unitLimit, repeat, verbose=False):
 		# The data around the stock
-		self.stockName = stockName
-		self.dataPoints = []
-		
-		self.purchaseUnits = 0
-		self.purchaseTotal = 0.0
-		self.purchaseUnitsList = []
-		self.purchaseTotalList = []
-		self.purchaseDateList = []
-		
+		self.ticker = ticker
+		self.buyDate = buyDate
+		self.sellDate = sellDate
+		self.buyLimit = buyLimit
+		self.unitLimit = unitLimit
+		self.repeat = repeat
 		self.verbose = verbose
+		
+		# The stock data points
+		self.dataPoints = []
 		
 		# The header of the CSV data
 		self.header = []
 		self.headerSize = 0
-						
-	def addDataPoints(self, csvList):
+		
+		# Add the data points
+		self.addDataPoints(self.ticker, self.buyDate, self.sellDate)
+		
+	def addDataPoints(self, ticker, buyDate, sellDate):
 		""" Adds a set of data points, which are 
 			lists of lists.
 		"""
+		# Gets the CSV giving the stock data
+		csvList = self.getCSV(ticker, buyDate, sellDate)
+
+		# Parse this list and add the data points
 		for index, csv in enumerate(csvList):
 			self.addDataPoint(index, csv)
+
+		# Sort the data points into date order
+		self.dataPoints.sort(key=lambda dp: dp.getDate(), reverse=False)		
 			
 	def addDataPoint(self, index, row):
 		""" Adds a data point given the index and 
@@ -45,11 +56,31 @@ class Stock:
 			dp = DataPoint(row, self.header)
 			self.dataPoints.append(dp)
 
+	def getCSV(self, name, startDate, endDate):
+		""" Gets the CSV for the particular stock in the specified
+			timeframe. Returns this CSV as a list of strings. 
+		"""
+		startYear, startMonth, startDay = self.getDate(str(startDate))
+		endYear, endMonth, endDay = self.getDate(str(endDate))
+		url = 'http://real-chart.finance.yahoo.com/table.csv?s='+name
+		url = url + '&a='+startMonth+'&b='+startDay+'&c='+startYear
+		url = url + '&d='+endMonth+'&e='+endDay+'&f='+endYear+'&g=d&ignore=.csv'
+		response = urllib2.urlopen(url)
+		cr = csv.reader(response)
+		csvList = list(cr)
+		return csvList
+
+	def getDate(self, dateValue):
+		dateString = str(dateValue)
+		year = dateString[0:4]
+		month = str(int(dateString[4:6])-1)
+		day = str(int(dateString[6:]))
+		return year, month, day
+
 	def size(self):
 		return len(self.dataPoints)
 
-	def sort(self):
-		self.dataPoints.sort(key=lambda dp: dp.getDate(), reverse=False)
+		
 
 	def getOpeningPrice(self):
 		return self.dataPoints[0].getDate(), self.dataPoints[0].getAdjustedValue()
