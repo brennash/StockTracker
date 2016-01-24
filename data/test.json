@@ -1,8 +1,25 @@
----- For a series of stocks
-{"stock_ticker":"RANDOM","buy_date":20150101,"sell_date":20160112,"buy_limit":1000.00,"repeat":"monthly"}
-{"stock_ticker":"RANDOM-REPEAT","buy_date":20160101,"sell_date":20160112,"buy_limit":500.00,"repeat":"daily"}
-{"stock_ticker":"AMZN","buy_date":20150101,"sell_date":20160112,"buy_limit":1000.00,"repeat":"weekly"}
-{"stock_ticker":"V","buy_date":20150101,"sell_date":20160112,"unit_limit":10,"buy_limit":1500.00}
-
----- And for a Fund containing multiple stocks
-{"fund_name":"TESTFUND","sell_date":20160112,"fund":[{"stock_ticker":"RANDOM","buy_date":20150101,"sell_date":20160112,"buy_limit":1000.00,"repeat":"monthly"},{"stock_ticker":"RANDOM-REPEAT","buy_date":20160101,"sell_date":20160112,"buy_limit":500.00,"repeat":"daily"},{"stock_ticker":"AMZN","buy_date":20150101,"sell_date":20160112,"buy_limit":1000.00,"repeat":"weekly"}]}
+{
+    "name": "Test Fund",
+    "sell_date": 20160112,
+    "total_buy_limit":5000.00,
+    "stocks": [
+        {
+            "ticker": "RANDOM",
+            "buy_date": 20150101,
+            "buy_limit": 600.00,
+            "repeat": "monthly"
+        },
+        {
+            "ticker": "AMZN",
+            "buy_date": 20150101,
+            "buy_limit": 500.00,
+            "repeat": "weekly"
+        },
+        {
+            "ticker": "V",
+            "buy_date": 20150601,
+            "unit_limit": 10,
+            "buy_limit": 300.00
+        }
+    ]
+}
