@@ -5,16 +5,13 @@ from stktrkr.StockTracker import StockTracker
 
 class Test(unittest.TestCase):
 
-	def test_StockTracker_Init_1(self):
-		jsonInput = '{name:\'myIndex\','
-		jsonInput = jsonInput + 'sellDate:20151221,'
-		jsonInput = jsonInput + 'stocks:['
-		jsonInput = jsonInput + '{ticker:\'AMZN\',buyDate:20140101,buyLimit:1000.00}'
-		jsonInput = jsonInput + ']}'
+	def test_StockTracker_ValidateDate_1(self):
+		""" Date format test for JSON input
+		"""
+		#tracker = StockTracker()
+		#dateString = tracker.validateDate('31-01-2015')
+		#self.assertEquals('20150131', dateString)
 		self.assertTrue(True)
-		tracker = StockTracker()
-		csv = tracker.getCSV('V',20151001,20151031)
-		self.assertEquals(23,len(csv))
 
 def main():
     unittest.main()

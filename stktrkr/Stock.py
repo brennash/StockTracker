@@ -16,6 +16,13 @@ class Stock:
 		self.repeat = repeat
 		self.verbose = verbose
 		
+		# The stock units bought
+		self.purchaseTotal = 0.0
+		self.purchaseUnits = 0
+		self.purchaseTotalList = []
+		self.purchaseUnitsList = []
+		self.purchaseDateList = []
+		
 		# The stock data points
 		self.dataPoints = []
 		
@@ -24,7 +31,8 @@ class Stock:
 		self.headerSize = 0
 		
 		# Add the data points
-		self.addDataPoints(self.ticker, self.buyDate, self.sellDate)
+		self.addDataPoints(ticker, buyDate, sellDate)
+		self.buy(buyDate, sellDate, buyLimit, unitLimit, repeat)
 		
 	def addDataPoints(self, ticker, buyDate, sellDate):
 		""" Adds a set of data points, which are 
@@ -80,48 +88,18 @@ class Stock:
 	def size(self):
 		return len(self.dataPoints)
 
-		
-
 	def getOpeningPrice(self):
 		return self.dataPoints[0].getDate(), self.dataPoints[0].getAdjustedValue()
 	
 	def getClosingPrice(self):
 		return self.dataPoints[-1].getDate(), self.dataPoints[-1].getAdjustedValue()
 	
-	def getPrice(self, dateValue):
-		""" Returns the date and value for a stock for a given date.
-		"""
-		prevDate = self.dataPoints[0].getDate()
-		for index, dataPoint in enumerate(self.dataPoints):
-			if dataPoint.getDate() == dateValue:
-				return dataPoint.getDate(), dataPoint.getAdjustedValue()
-			elif prevDate < dateValue and dateValue < dataPoint.getDate():
-				return dataPoint.getDate(), dataPoint.getAdjustedValue()
-			prevDate = dataPoint.getDate()
-		return None, None
-	
-	def getPriceDiff(self):
-		startDate, startPrice = self.getOpeningPrice()
-		endDate, endPrice = self.getClosingPrice()
-		delta = endDate-startDate
-		return delta.days, (endPrice-startPrice)
-	
-	def buy(self, buyDateInt, buyLimit, unitLimit, repeat):
-		startDate, startPrice = self.getOpeningPrice()
-		buyDate = datetime.datetime.strptime(str(buyDateInt), '%Y%m%d')
-					
-		# If there's not share unit limit and the stock price
-		# is less than the purchase limit
-		if unitLimit == -1 and startPrice < buyLimit:
-			self.buyShares(buyLimit, buyDate, repeat)
-
-		# Else if there's a stock unit limit and you 
-		# can afford 
-		elif unitLimit > 0 and (unitLimit*startPrice) < buyLimit:
-			self.buyUnitShares(unitLimit, buyLimit, buyDate, repeat)
 
 	
-	def buyShares(self, buyLimit, buyDate, repeat):
+
+
+	
+	def buy(self, buyLimit, buyDate, repeat):
 		""" Buy shares up to a purchase price limit defined 
 			by buyLimit, starting at an initial date defined by
 			buyDate, and repeated never/daily/monthly/quarterly.
