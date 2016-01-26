@@ -99,7 +99,7 @@ class Stock:
 
 
 	
-	def buy(self, buyLimit, buyDate, repeat):
+	def buy(self, buyDate, sellDate, buyLimit, unitLimit, repeat):
 		""" Buy shares up to a purchase price limit defined 
 			by buyLimit, starting at an initial date defined by
 			buyDate, and repeated never/daily/monthly/quarterly.
