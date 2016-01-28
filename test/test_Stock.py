@@ -6,24 +6,31 @@ from stktrkr.Stock import Stock
 class Test(unittest.TestCase):
 
 	def test_Stock_Init_1(self):
-		header = ['Date', 'Open', 'High', 'Low', 'Close', 'Volume', 'Adj Close']
-		line1 = ['2015-01-01', '10.1', '10.2', '10.3', '10.4', '12345', '10.5']
-		line2 = ['2015-01-03', '10.1', '10.2', '10.3', '10.4', '12345', '10.6']
-		line3 = ['2015-01-04', '10.1', '10.2', '10.3', '10.4', '12345', '10.7']
-		csv = []
-		csv.append(header)
-		csv.append(line1)
-		csv.append(line2)
-		csv.append(line3)
+		stock = Stock('AMZN', 20150111, 20160115, 1000.0, 10.0, 'never', False)
+		date, price = stock.getOpeningPrice()
+		self.assertTrue(price > 0.0 and price < 1000.0)
+		
+	def test_Stock_Init_2(self):
+		stock = Stock('AMZN', 20160111, 20160115, 1000.0, 10.0, 'never', False)
+		date, price = stock.getOpeningPrice()
+		self.assertTrue(price > 500.0 and price < 750.0)
+		
+	def test_Stock_Init_3(self):
+		stock = Stock('AAPL', 20160127, 20160127, 100.0, 2.0, 'never', False)
+		date, price = stock.getOpeningPrice()
+		self.assertTrue(price > 93.0 and price < 97.0)
 
-		stock = Stock('TEST')
-		stock.addDataPoints(csv)
-		stock.sort()
-		
-		expected = 3
-		actual = stock.size()
-		self.assertEquals(expected, actual)
-		
+	def test_Stock_Init_4(self):
+		stock = Stock('AAPL', 20160126, 20160127, 100.0, 2.0, 'daily', False)
+		price = stock.totalPurchased()
+		self.assertTrue(price > 185.0 and price < 200.0)
+
+	def test_Stock_Init_5(self):
+		stock = Stock('AAPL', 20160125, 20160127, 100.0, 2.0, 'daily', False)
+		price = stock.totalPurchased()
+		self.assertTrue(price > 250.0 and price < 300.0)
+
+
 def main():
     unittest.main()
 
