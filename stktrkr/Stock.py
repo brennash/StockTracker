@@ -17,11 +17,11 @@ class Stock:
 		self.verbose = verbose
 		
 		# The stock units bought
-		self.purchaseTotal = 0.0
-		self.purchaseUnits = 0
-		self.purchaseTotalList = []
-		self.purchaseUnitsList = []
-		self.purchaseDateList = []
+		self.purchased = 0.0
+		self.units = 0
+		self.purchasedList = []
+		self.unitsList = []
+		self.dateList = []
 		
 		# The stock data points
 		self.dataPoints = []
@@ -89,16 +89,30 @@ class Stock:
 		return len(self.dataPoints)
 
 	def getOpeningPrice(self):
+		""" Returns the date and the adjusted price for the first value
+			in the set of data points, i.e., the opening date and price.
+		"""
 		return self.dataPoints[0].getDate(), self.dataPoints[0].getAdjustedValue()
-	
+
 	def getClosingPrice(self):
+		""" Returns the closing date and the adjusted price for the first value
+			in the set of data points, i.e., the closing date and price.
+		"""	
 		return self.dataPoints[-1].getDate(), self.dataPoints[-1].getAdjustedValue()
-	
+		
+	def getPrice(self, searchDate):
+		for dataPoint in self.dataPoints:
+			date = dataPoint.getDate()
+			price = dataPoint.getAdjustedValue()
+			if date == searchDate:
+				return date, price
+			elif date > searchDate:
+				break
+		return None, None
+			
+			
+		
 
-	
-
-
-	
 	def buy(self, buyDate, sellDate, buyLimit, unitLimit, repeat):
 		""" Buy shares up to a purchase price limit defined 
 			by buyLimit, starting at an initial date defined by
@@ -108,71 +122,27 @@ class Stock:
 		"""
 		startDate, startPrice = self.getOpeningPrice()
 		maxAmount = int(buyLimit)/int(startPrice)
-		
-		if self.verbose:
-			dateString = startDate.strftime('%d/%m/%Y')
-			print 'StartDate:{0},StartPrice:{1:.1f}'.format(startDate, startPrice)
-			print 'MaxUnits:{0}'.format(maxAmount)
-		
+				
 		if repeat == 'never' and maxAmount > 0:
-			self.purchaseTotal = (maxAmount * startPrice)
-			self.purchaseUnits = maxAmount
-			self.purchaseTotalList.append(maxAmount * startPrice)
-			self.purchaseUnitsList.append(maxAmount)
-			self.purchaseDateList = [startDate]	
+			self.purchased = (maxAmount * startPrice)
+			self.units = maxAmount
+			self.purchasedList.append(maxAmount * startPrice)
+			self.unitsList.append(maxAmount)
+			self.dateList = [startDate]	
 		else:
 			currentDate = startDate
 			endDate, endPrice = self.getClosingPrice()
 			while currentDate <= endDate:
 				date, price = self.getPrice(currentDate)
-				maxAmount = int(buyLimit)/int(price)
-				if maxAmount > 0:
-					self.purchaseTotal += (maxAmount * price)
-					self.purchaseUnits += maxAmount
-					self.purchaseTotalList.append(maxAmount * price)
-					self.purchaseUnitsList.append(maxAmount)
-					self.purchaseDateList.append(date)				
+				if date is not None and price is not None:
+					maxAmount = int(buyLimit)/int(price)
+					if maxAmount > 0:
+						self.purchased += (maxAmount * price)
+						self.units += maxAmount
+						self.purchasedList.append(maxAmount * price)
+						self.unitsList.append(maxAmount)
+						self.dateList.append(date)				
 				currentDate = self.getNextDate(currentDate, repeat)
-
-	def buyUnitShares(self, unitLimit, buyLimit, buyDate, repeat):
-		""" Buy a number of shares up to a unit limit defined 
-			by unitLimit, starting at an initial date defined by
-			buyDate, and repeated never/daily/monthly/quarterly.
-			The buyLimit rather than the unitLimit is the more 
-			important limiting factor. 
-			
-			Returns nothing, just updates the stock details.
-		"""
-		startDate, startPrice = self.getOpeningPrice()
-		maxUnits = int(buyLimit) / int(startPrice)
-		if maxUnits > unitLimit:
-			maxUnits = unitLimit
-			
-		if repeat.lower() == 'never' and maxUnits > 0:
-			self.purchaseTotal = (maxUnits * startPrice)
-			self.purchaseUnits = maxUnits
-			self.purchaseTotalList.append(maxUnits * startPrice)
-			self.purchaseUnitsList.append(maxUnits)
-			self.purchaseDateList = [startDate]	
-		elif repeat.lower() != 'never':
-			currentDate = startDate
-			endDate, endPrice = self.getClosingPrice()
-			while currentDate <= endDate:
-				date, price = self.getPrice(currentDate)
-				maxUnits = int(buyLimit) / int(startPrice)
-				if maxUnits > unitLimit:
-					maxUnits = unitLimit
-				if maxUnits > 0:
-					self.purchaseTotal += (maxUnits * price)
-					self.purchaseUnits += maxUnits
-					self.purchaseTotalList.append(maxUnits * price)
-					self.purchaseUnitsList.append(maxUnits)
-					self.purchaseDateList.append(date)				
-				currentDate = self.getNextDate(currentDate, repeat)	
-		else:
-			print 'ERROR',unitLimit,buyLimit,buyDate,repeat
-			print 'MaxUnits',maxUnits
-			print 'startPrice',startPrice
 	
 	def getNextDate(self, currentDate, repeat):
 		""" Gets the next date, depending on the input, i.e., 
@@ -190,11 +160,11 @@ class Stock:
 			updatedDate = currentDate
 		return updatedDate
 
-	def getTotalStockPurchased(self):
-		return self.purchaseTotal
+	def totalPurchased(self):
+		return self.purchased
 		
-	def getListStockUnits(self):
-		return self.purchaseUnitsList
+	def totalUnits(self):
+		return self.units
 
 	def printDetails(self):
 		openingDate, openingPrice = self.getOpeningPrice()
