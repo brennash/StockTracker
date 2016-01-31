@@ -91,7 +91,7 @@ class StockTracker:
 			if self.verbose:
 				print '{0}, BuyDate:{1}, BuyLimit:{2}, UnitLimit{3}, Repeat:{4}'.format(ticker, \
 						buyDate, buyLimit, unitLimit, repeat)
-						
+					
 			# Initialize the stock and save it to list
 			stock = Stock(ticker, buyDate, sellDate, buyLimit, unitLimit, repeat, self.verbose)
 			self.stockList.append(stock)
@@ -99,40 +99,7 @@ class StockTracker:
 		# Now figure out your winnings
 		for stock in self.stockList:
 			total = stock.printDetails()
-	
-	def old_process(self, jsonString):
-		for stock in stocks:
-			name = stock['ticker'].upper()
-			buyDate = stock['buy_date']
-	
-
-			# Printing verbose output stock name		
-			if self.verbose:
-				print 'Processing',name		
-		
-			buyLimit = stock['buy_limit']
-
-
 			
-			# Print the details for each purchase plan
-			if self.verbose:
-				print 'BuyLimit:{0},UnitLimit:{1},Repeat:{2}'.format(buyLimit,unitLimit,repeat)
-			
-			# Read the raw stock data
-			csvList = self.getCSV(name, buyDate, sellDate)
-			
-			# Initialise the Stock and add data
-			stock = Stock(name, self.verbose)
-			stock.addDataPoints(csvList)
-			
-			# Sort them into date order oldest to newest
-			stock.sort()
-			
-			# Buy the stock and print the details
-			stock.buy
-			stock.printDetails()
-
-		
 	def getRandomTicker(self):
 		sp500 =['ABT', 'ABBV', 'ACN', 'ACE', 'ATVI', 'ADBE', \
 		'ADT', 'AAP', 'AES', 'AET', 'AFL', 'AMG', 'A', 'GAS', 'APD', \

@@ -23,28 +23,43 @@ UrlLib2 to get the raw data in CSV format.
 
 ## Usage
 The StockTracker library can be kicked off using the script in the bin
-directory. Basically library requires a JSON file as input listing when 
-and how many shares are to be bought on a certain day. The output is the 
-performance of this portfolio on a specified day, also highlighted in the
-JSON input. 
+directory. Basically library requires a JSON file as input listing one or
+more shares which form a fund. There are a number of settings which control
+how much of each share can be bought, the total spend and the interval 
+between repeat purchases. The output is the performance of this portfolio
+on a named ```sell_date```.
 
 ```
-{"name":"test1",
-    "sell_date":20151221,
-    "stocks":[
-        {"ticker":"RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"RANDOM-REPEAT","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00},
-        {"ticker":"TSLA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00},
-        {"ticker":"NVDA","buy_date":20150201,"unit_limit":10,"buy_limit":1500.00}
+{
+    "name": "Test Fund",
+    "sell_date": 20160112,
+    "total_buy_limit":10000.00,
+    "fund": [
+        {
+            "ticker": "RANDOM",
+            "buy_date": 20150101,
+            "buy_limit": 600.00,
+            "repeat": "monthly"
+        },
+        {
+            "ticker": "AMZN",
+            "buy_date": 20150101,
+            "buy_limit": 500.00,
+            "repeat": "weekly"
+        },
+        {
+            "ticker": "V",
+            "buy_date": 20150601,
+            "unit_limit": 10,
+            "buy_limit": 300.00
+        }
     ]
 }
 ```
 
-Note the 'RANDOM-REPEAT' ticker name in the above JSON. This allows the 
+Note the 'RANDOM' ticker name in the above JSON. This allows the 
 application to randomly select an S&P500 stock at each purchase interval 
-and see how it performs over the given time period. The assumption with 
-RANDOM-REPEAT stocks is that the 'repeat' field is non-null.
+and see how it performs over the given time period.
 
 ## Running the application
 To run the application you need a valid JSON file describing the stocks to be checked, 
