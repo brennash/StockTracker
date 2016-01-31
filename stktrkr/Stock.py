@@ -1,33 +1,52 @@
 import re
 import csv
+import urllib2
 import datetime
 from dateutil.relativedelta import relativedelta
 from stktrkr.DataPoint import DataPoint
 
 class Stock:
-	def __init__(self, stockName, verbose=False):
+	def __init__(self, ticker, buyDate, sellDate, buyLimit, unitLimit, repeat, verbose=False):
 		# The data around the stock
-		self.stockName = stockName
-		self.dataPoints = []
-		
-		self.purchaseUnits = 0
-		self.purchaseTotal = 0.0
-		self.purchaseUnitsList = []
-		self.purchaseTotalList = []
-		self.purchaseDateList = []
-		
+		self.ticker = ticker
+		self.buyDate = buyDate
+		self.sellDate = sellDate
+		self.buyLimit = buyLimit
+		self.unitLimit = unitLimit
+		self.repeat = repeat
 		self.verbose = verbose
+		
+		# The stock units bought
+		self.purchased = 0.0
+		self.units = 0
+		self.purchasedList = []
+		self.unitsList = []
+		self.dateList = []
+		
+		# The stock data points
+		self.dataPoints = []
 		
 		# The header of the CSV data
 		self.header = []
 		self.headerSize = 0
-						
-	def addDataPoints(self, csvList):
+		
+		# Add the data points
+		self.addDataPoints(ticker, buyDate, sellDate)
+		self.buy(buyDate, sellDate, buyLimit, unitLimit, repeat)
+		
+	def addDataPoints(self, ticker, buyDate, sellDate):
 		""" Adds a set of data points, which are 
 			lists of lists.
 		"""
+		# Gets the CSV giving the stock data
+		csvList = self.getCSV(ticker, buyDate, sellDate)
+
+		# Parse this list and add the data points
 		for index, csv in enumerate(csvList):
 			self.addDataPoint(index, csv)
+
+		# Sort the data points into date order
+		self.dataPoints.sort(key=lambda dp: dp.getDate(), reverse=False)		
 			
 	def addDataPoint(self, index, row):
 		""" Adds a data point given the index and 
@@ -45,52 +64,56 @@ class Stock:
 			dp = DataPoint(row, self.header)
 			self.dataPoints.append(dp)
 
+	def getCSV(self, name, startDate, endDate):
+		""" Gets the CSV for the particular stock in the specified
+			timeframe. Returns this CSV as a list of strings. 
+		"""
+		startYear, startMonth, startDay = self.getDate(str(startDate))
+		endYear, endMonth, endDay = self.getDate(str(endDate))
+		url = 'http://real-chart.finance.yahoo.com/table.csv?s='+name
+		url = url + '&a='+startMonth+'&b='+startDay+'&c='+startYear
+		url = url + '&d='+endMonth+'&e='+endDay+'&f='+endYear+'&g=d&ignore=.csv'
+		response = urllib2.urlopen(url)
+		cr = csv.reader(response)
+		csvList = list(cr)
+		return csvList
+
+	def getDate(self, dateValue):
+		dateString = str(dateValue)
+		year = dateString[0:4]
+		month = str(int(dateString[4:6])-1)
+		day = str(int(dateString[6:]))
+		return year, month, day
+
 	def size(self):
 		return len(self.dataPoints)
 
-	def sort(self):
-		self.dataPoints.sort(key=lambda dp: dp.getDate(), reverse=False)
-
 	def getOpeningPrice(self):
-		return self.dataPoints[0].getDate(), self.dataPoints[0].getAdjustedValue()
-	
-	def getClosingPrice(self):
-		return self.dataPoints[-1].getDate(), self.dataPoints[-1].getAdjustedValue()
-	
-	def getPrice(self, dateValue):
-		""" Returns the date and value for a stock for a given date.
+		""" Returns the date and the adjusted price for the first value
+			in the set of data points, i.e., the opening date and price.
 		"""
-		prevDate = self.dataPoints[0].getDate()
-		for index, dataPoint in enumerate(self.dataPoints):
-			if dataPoint.getDate() == dateValue:
-				return dataPoint.getDate(), dataPoint.getAdjustedValue()
-			elif prevDate < dateValue and dateValue < dataPoint.getDate():
-				return dataPoint.getDate(), dataPoint.getAdjustedValue()
-			prevDate = dataPoint.getDate()
+		return self.dataPoints[0].getDate(), self.dataPoints[0].getAdjustedValue()
+
+	def getClosingPrice(self):
+		""" Returns the closing date and the adjusted price for the first value
+			in the set of data points, i.e., the closing date and price.
+		"""	
+		return self.dataPoints[-1].getDate(), self.dataPoints[-1].getAdjustedValue()
+		
+	def getPrice(self, searchDate):
+		for dataPoint in self.dataPoints:
+			date = dataPoint.getDate()
+			price = dataPoint.getAdjustedValue()
+			if date == searchDate:
+				return date, price
+			elif date > searchDate:
+				break
 		return None, None
-	
-	def getPriceDiff(self):
-		startDate, startPrice = self.getOpeningPrice()
-		endDate, endPrice = self.getClosingPrice()
-		delta = endDate-startDate
-		return delta.days, (endPrice-startPrice)
-	
-	def buy(self, buyDateInt, buyLimit, unitLimit, repeat):
-		startDate, startPrice = self.getOpeningPrice()
-		buyDate = datetime.datetime.strptime(str(buyDateInt), '%Y%m%d')
-					
-		# If there's not share unit limit and the stock price
-		# is less than the purchase limit
-		if unitLimit == -1 and startPrice < buyLimit:
-			self.buyShares(buyLimit, buyDate, repeat)
+			
+			
+		
 
-		# Else if there's a stock unit limit and you 
-		# can afford 
-		elif unitLimit > 0 and (unitLimit*startPrice) < buyLimit:
-			self.buyUnitShares(unitLimit, buyLimit, buyDate, repeat)
-
-	
-	def buyShares(self, buyLimit, buyDate, repeat):
+	def buy(self, buyDate, sellDate, buyLimit, unitLimit, repeat):
 		""" Buy shares up to a purchase price limit defined 
 			by buyLimit, starting at an initial date defined by
 			buyDate, and repeated never/daily/monthly/quarterly.
@@ -99,71 +122,27 @@ class Stock:
 		"""
 		startDate, startPrice = self.getOpeningPrice()
 		maxAmount = int(buyLimit)/int(startPrice)
-		
-		if self.verbose:
-			dateString = startDate.strftime('%d/%m/%Y')
-			print 'StartDate:{0},StartPrice:{1:.1f}'.format(startDate, startPrice)
-			print 'MaxUnits:{0}'.format(maxAmount)
-		
+				
 		if repeat == 'never' and maxAmount > 0:
-			self.purchaseTotal = (maxAmount * startPrice)
-			self.purchaseUnits = maxAmount
-			self.purchaseTotalList.append(maxAmount * startPrice)
-			self.purchaseUnitsList.append(maxAmount)
-			self.purchaseDateList = [startDate]	
+			self.purchased = (maxAmount * startPrice)
+			self.units = maxAmount
+			self.purchasedList.append(maxAmount * startPrice)
+			self.unitsList.append(maxAmount)
+			self.dateList = [startDate]	
 		else:
 			currentDate = startDate
 			endDate, endPrice = self.getClosingPrice()
 			while currentDate <= endDate:
 				date, price = self.getPrice(currentDate)
-				maxAmount = int(buyLimit)/int(price)
-				if maxAmount > 0:
-					self.purchaseTotal += (maxAmount * price)
-					self.purchaseUnits += maxAmount
-					self.purchaseTotalList.append(maxAmount * price)
-					self.purchaseUnitsList.append(maxAmount)
-					self.purchaseDateList.append(date)				
+				if date is not None and price is not None:
+					maxAmount = int(buyLimit)/int(price)
+					if maxAmount > 0:
+						self.purchased += (maxAmount * price)
+						self.units += maxAmount
+						self.purchasedList.append(maxAmount * price)
+						self.unitsList.append(maxAmount)
+						self.dateList.append(date)				
 				currentDate = self.getNextDate(currentDate, repeat)
-
-	def buyUnitShares(self, unitLimit, buyLimit, buyDate, repeat):
-		""" Buy a number of shares up to a unit limit defined 
-			by unitLimit, starting at an initial date defined by
-			buyDate, and repeated never/daily/monthly/quarterly.
-			The buyLimit rather than the unitLimit is the more 
-			important limiting factor. 
-			
-			Returns nothing, just updates the stock details.
-		"""
-		startDate, startPrice = self.getOpeningPrice()
-		maxUnits = int(buyLimit) / int(startPrice)
-		if maxUnits > unitLimit:
-			maxUnits = unitLimit
-			
-		if repeat.lower() == 'never' and maxUnits > 0:
-			self.purchaseTotal = (maxUnits * startPrice)
-			self.purchaseUnits = maxUnits
-			self.purchaseTotalList.append(maxUnits * startPrice)
-			self.purchaseUnitsList.append(maxUnits)
-			self.purchaseDateList = [startDate]	
-		elif repeat.lower() != 'never':
-			currentDate = startDate
-			endDate, endPrice = self.getClosingPrice()
-			while currentDate <= endDate:
-				date, price = self.getPrice(currentDate)
-				maxUnits = int(buyLimit) / int(startPrice)
-				if maxUnits > unitLimit:
-					maxUnits = unitLimit
-				if maxUnits > 0:
-					self.purchaseTotal += (maxUnits * price)
-					self.purchaseUnits += maxUnits
-					self.purchaseTotalList.append(maxUnits * price)
-					self.purchaseUnitsList.append(maxUnits)
-					self.purchaseDateList.append(date)				
-				currentDate = self.getNextDate(currentDate, repeat)	
-		else:
-			print 'ERROR',unitLimit,buyLimit,buyDate,repeat
-			print 'MaxUnits',maxUnits
-			print 'startPrice',startPrice
 	
 	def getNextDate(self, currentDate, repeat):
 		""" Gets the next date, depending on the input, i.e., 
@@ -181,11 +160,11 @@ class Stock:
 			updatedDate = currentDate
 		return updatedDate
 
-	def getTotalStockPurchased(self):
-		return self.purchaseTotal
+	def totalPurchased(self):
+		return self.purchased
 		
-	def getListStockUnits(self):
-		return self.purchaseUnitsList
+	def totalUnits(self):
+		return self.units
 
 	def printDetails(self):
 		openingDate, openingPrice = self.getOpeningPrice()

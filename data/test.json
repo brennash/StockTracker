@@ -1,10 +1,25 @@
-{"name":"test1",
-    "sell_date":20151220,
-    "stocks":[
-        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"SP500-RANDOM","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"AMZN","buy_date":20150101,"buy_limit":1000.00,"repeat":"monthly"},
-        {"ticker":"TSLA","buy_date":20150101,"buy_limit":400.00,"repeat":"monthly"},
-        {"ticker":"V","buy_date":20150101,"unit_limit":10,"buy_limit":1500.00}
+{
+    "name": "Test Fund",
+    "sell_date": 20160112,
+    "total_buy_limit":5000.00,
+    "stocks": [
+        {
+            "ticker": "RANDOM",
+            "buy_date": 20150101,
+            "buy_limit": 600.00,
+            "repeat": "monthly"
+        },
+        {
+            "ticker": "AMZN",
+            "buy_date": 20150101,
+            "buy_limit": 500.00,
+            "repeat": "weekly"
+        },
+        {
+            "ticker": "V",
+            "buy_date": 20150601,
+            "unit_limit": 10,
+            "buy_limit": 300.00
+        }
     ]
 }
