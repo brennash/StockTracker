@@ -109,9 +109,6 @@ class Stock:
 			elif date > searchDate:
 				break
 		return None, None
-			
-			
-		
 
 	def buy(self, buyDate, sellDate, buyLimit, unitLimit, repeat):
 		""" Buy shares up to a purchase price limit defined 
@@ -136,6 +133,8 @@ class Stock:
 				date, price = self.getPrice(currentDate)
 				if date is not None and price is not None:
 					maxAmount = int(buyLimit)/int(price)
+					if maxAmount > unitLimit:
+						maxAmount = unitLimit
 					if maxAmount > 0:
 						self.purchased += (maxAmount * price)
 						self.units += maxAmount
@@ -164,8 +163,17 @@ class Stock:
 		return self.purchased
 		
 	def totalUnits(self):
+		""" Returns the total number of stock units purchased
+			between the buy and sell dates. 
+		"""
 		return self.units
 
+	def getPurchaseDates(self):
+		""" Returns the list of dates where purchases were 
+			made, i.e., daily, weekly or monthly. 
+		"""
+		return self.dateList
+		
 	def printDetails(self):
 		openingDate, openingPrice = self.getOpeningPrice()
 		closingDate, closingPrice = self.getClosingPrice()

@@ -30,6 +30,20 @@ class Test(unittest.TestCase):
 		price = stock.totalPurchased()
 		self.assertTrue(price > 250.0 and price < 300.0)
 
+	def test_Stock_Units_1(self):
+		stock = Stock('AMZN', 20160103, 20160113, 800.0, 1.0, 'daily', False)
+		units = stock.totalUnits()
+		self.assertEquals(units, 8)
+
+	def test_Stock_Units_2(self):
+		stock = Stock('AMZN', 20160103, 20160113, 800.0, 1.0, 'weekly', False)
+		units = stock.totalUnits()
+		self.assertEquals(units, 2)
+
+	def test_Stock_Units_3(self):
+		stock = Stock('AMZN', 20150106, 20151231, 800.0, 1.0, 'monthly', False)
+		units = stock.totalUnits()
+		self.assertEquals(units, 12)
 
 def main():
     unittest.main()

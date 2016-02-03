@@ -59,7 +59,6 @@ class StockTracker:
 		jsonDict = json.loads(jsonString)
 		name = jsonDict['name']
 		sellDate = jsonDict['sell_date']
-		totalBuyLimit = jsonDict['total_buy_limit']
 		stocks = jsonDict['stocks']
 
 		# Output the name of the fund
