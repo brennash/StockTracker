@@ -156,5 +156,5 @@ class StockTracker:
 		'DIS', 'WM', 'WAT', 'ANTM', 'WFC', 'HCN', 'WDC', 'WU', 'WY', 'WHR', \
 		'WFM', 'WMB', 'WEC', 'WYN', 'WYNN', 'XEL', 'XRX', 'XLNX', 'XL', \
 		'XYL', 'YHOO', 'YUM', 'ZBH', 'ZION', 'ZTS']	
-		index = randint(0,len(sp500))
+		index = randint(0,len(sp500)-1)
 		return sp500[index]	

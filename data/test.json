@@ -1,10 +1,9 @@
 {
-    "name": "Test Fund",
+    "name": "Example Fund",
     "sell_date": 20160112,
-    "total_buy_limit":5000.00,
     "stocks": [
         {
-            "ticker": "RANDOM",
+            "ticker": "APPL",
             "buy_date": 20150101,
             "buy_limit": 600.00,
             "repeat": "monthly"
@@ -13,12 +12,12 @@
             "ticker": "AMZN",
             "buy_date": 20150101,
             "buy_limit": 500.00,
-            "repeat": "weekly"
+            "repeat": "monthly"
         },
         {
-            "ticker": "V",
-            "buy_date": 20150601,
-            "unit_limit": 10,
+            "ticker": "RANDOM",
+            "buy_date": 20150101,
+            "unit_limit": 1,
             "buy_limit": 300.00
         }
     ]

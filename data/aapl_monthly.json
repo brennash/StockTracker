@@ -1,0 +1,13 @@
+{
+    "name": "Apple Fund",
+    "sell_date": 20160204,
+    "stocks": [
+        {
+            "ticker": "AAPL",
+            "buy_date": 20050101,
+            "buy_limit": 600.00,
+            "unit_limit": 100,
+            "repeat": "monthly"
+        }
+    ]
+}
